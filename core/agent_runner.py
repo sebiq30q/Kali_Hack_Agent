@@ -26,6 +26,7 @@ from core.level2_agent import (
     agent_custom_code,
 )
 from core.memory_manager import MemoryManager
+from core.chat_agent import chat_agent
 
 
 TARGET_TO_AGENT = {
@@ -153,9 +154,31 @@ class AgentRunner:
         except json.JSONDecodeError as e:
             raise ValueError(f"一级Agent输出不是合法JSON: {decision_text}\n提取的JSON文本: {json_text}\n错误: {e}")
 
-        if decision.get("action") != "handoff":
-            raise ValueError(f"一级Agent输出action不为handoff: {decision}")
+        action = decision.get("action")
+        if action not in {"handoff", "chat"}:
+            raise ValueError(f"一级Agent输出action非法: {decision}")
 
+        # action=chat：直接进入自然语言闲聊，不触发二/三级工具链
+        if action == "chat":
+            await self._add_output(task_id, "agent_message", {
+                "agent": "Level 1 Classifier",
+                "content": "闲聊模式（不调用工具链）"
+            })
+            await self._add_output(task_id, "agent_thinking", {
+                "agent": "Chat Agent",
+                "status": "thinking",
+                "message": "正在生成闲聊回复..."
+            })
+
+            chat_result = await self._run_streaming(
+                chat_agent,
+                query_with_history,
+                task_id=task_id,
+                silent=False,
+            )
+            return classify_result, chat_result
+
+        # action=handoff：根据 target 映射到二级Agent
         target = decision.get("target")
         if target not in TARGET_TO_AGENT:
             raise ValueError(f"未知target: {target}")

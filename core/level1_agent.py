@@ -17,19 +17,21 @@ task_classifier_agent = Agent(
 
         JSON 格式严格如下（不要多字段，不要少字段，不要加注释）：
         {
-        "action": "handoff",
-        "target": "<one_of: information_collection | scanning | enumeration | web_exploitation | exploitation | password_crypto | wireless_attack | reverse_engineering | forensics | post_exploitation | custom_code>"
+        "action": "<one_of: handoff | chat>",
+        "target": "<one_of: information_collection | scanning | enumeration | web_exploitation | exploitation | password_crypto | wireless_attack | reverse_engineering | forensics | post_exploitation | custom_code> 或 null"
         }
 
         含义：
-        - "action": 固定为 "handoff"
-        - "target": 为这项任务进行分类，必须从上面列出的枚举值中选择一个，其他值一律视为非法
+        - "action":
+          - 当 action="handoff" 时，target 必须从上面列出的枚举值中选择一个
+          - 当 action="chat" 时，target 必须为 null
+        - "target": 仅在 action="handoff" 时有效，用于二级Agent选择具体工具类别
         
         """
         + get_tool_category_mapping_text()
         + """
         
-        📌 分类示例：
+        📌 选择示例：
         - "使用nmap扫描192.168.1.1" → target: "scanning"
         - "用sqlmap测试SQL注入" → target: "web_exploitation"
         - "使用hydra爆破密码" → target: "exploitation"
@@ -43,6 +45,10 @@ task_classifier_agent = Agent(
         - "写一段Python代码来..." → target: "custom_code"
         - "帮我执行Python代码" → target: "custom_code"
         - "自定义代码执行" → target: "custom_code"
+
+        - "你好/闲聊/聊天" → action: "chat", target: null
+        - "你能解释一下这段话吗（不需要任何工具）" → action: "chat", target: null
+        - "给我一句普通建议" → action: "chat", target: null
         """
     ),
     model=MODEL_NAME,
