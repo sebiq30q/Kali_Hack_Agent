@@ -14,7 +14,7 @@
 
 - ✅ 三层Agent自动路由和执行
 - ✅ 支持50+渗透测试工具（nmap, sqlmap, metasploit等）
-- ✅ 在Kali Linux Docker容器中安全执行代码
+- ✅ 在 Docker 容器中隔离执行（非 Kali 亦可，配齐工具即可）
 - ✅ 流式输出，实时查看执行过程
 - ✅ 支持多种安全测试领域（信息收集、扫描、枚举、Web利用等）
 
@@ -37,6 +37,10 @@ OPENAI_API_KEY=你的API密钥
 OPENAI_BASE_URL=你的API地址
 MODEL_NAME=gpt-4o
 ```
+
+如果你没有**配置 Kali 容器**，或觉得**在 Kali 容器里安装工具很麻烦**，这里提供**已配置好的一键部署版本**，并非轻量级，请根据自身情况下载。链接如下：
+
+
 
 ## 使用方法
 
@@ -113,7 +117,7 @@ Kali_Code_Excuter/
 
 ## 注意事项
 
-1. 确保Docker容器正在运行且可访问
+1. 确保 Docker 容器正在运行且可访问（不限 Kali；镜像内需有所需安全 CLI 与 `python3`）
 2. 确保容器名称与 `.env` 中的 `DOCKER_NAME` 一致
 3. 需要有效的OpenAI API密钥和地址
 4. 所有代码执行都在隔离的Docker容器中进行
